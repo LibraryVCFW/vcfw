@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Organizer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header .logo {
+      font-size: 32px;
+      font-weight: bold;
+      color: #333;
+      text-transform: uppercase;
+    }
+
+    .header .college-name {
+      font-size: 24px;
+      font-weight: bold;
+      color: #4CAF50;
+      margin-top: 10px;
+    }
+
+    .shining-card {
+      width: 150px;
+      height: 150px;
+      background-color: #4CAF50;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      margin: 10px;
+      text-align: center;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .shining-card:hover {
+      box-shadow: 0 0 30px rgba(0, 255, 0, 1);
+      transform: scale(1.1);
+    }
+
+    .cards-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .card-link {
+      color: white;
+      text-decoration: none;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .pdf-section {
+      width: 100%;
+      max-width: 800px;
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .pdf-section h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #pdf-list {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 20px;
+    }
+
+    .pdf-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      background-color: #f9f9f9;
+      padding: 12px;
+      border-radius: 5px;
+      font-size: 16px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .remove-btn {
+      background-color: red;
+      color: white;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .remove-btn:hover {
+      background-color: darkred;
+    }
+
+    .upload-btn {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 18px;
+      cursor: pointer;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .upload-btn:hover {
+      background-color: #45a049;
+    }
+
+    .back-btn {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 18px;
+      cursor: pointer;
+      display: block;
+      margin-top: 30px;
+      width: 150px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .back-btn:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Section -->
+  <div class="header">
+    <div class="logo">VCFW</div>
+    <div class="college-name">Vidyasagar College for Women</div>
+  </div>
+
+  <!-- Cards Section -->
+  <div class="cards-container">
+    <a href="Merge Pdf.HTML" class="card-link">
+      <div class="shining-card">
+        <span>Merge PDF</span>
+      </div>
+    </a>
+    <a href="PDF Splitter.HTML" class="card-link">
+      <div class="shining-card">
+        <span>PDF Splitter</span>
+      </div>
+    </a>
+    <a href="PDF Organiser.HTML" class="card-link">
+      <div class="shining-card">
+        <span>PDF Organizer</span>
+      </div>
+    </a>
+  </div>
+
+  
+
+  <!-- Back Button -->
+  <button class="back-btn" onclick="window.location.href='index.html'">Back to Main Page</button>
+
+  <script>
+    let pdfFiles = [];
+
+    // Handle file selection and display the list of PDFs
+    document.getElementById('pdf-upload').addEventListener('change', (event) => {
+      const files = event.target.files;
+      for (let i = 0; i < files.length; i++) {
+        if (files[i].type === 'application/pdf') {
+          pdfFiles.push(files[i]);
+        }
+      }
+      renderPdfList();
+    });
+
+    // Render PDF list
+    function renderPdfList() {
+      const pdfListElement = document.getElementById('pdf-list');
+      pdfListElement.innerHTML = '';
+      pdfFiles.forEach((file, index) => {
+        const listItem = document.createElement('li');
+        listItem.classList.add('pdf-item');
+        listItem.innerHTML = `${file.name} <button class="remove-btn" onclick="removePdf(${index})">Remove</button>`;
+        pdfListElement.appendChild(listItem);
+      });
+    }
+
+    // Remove PDF file from the list
+    function removePdf(index) {
+      pdfFiles.splice(index, 1);
+      renderPdfList();
+    }
+  </script>
+
+</body>
+</html>

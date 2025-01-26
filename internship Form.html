@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library Internship Application Form</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f79292;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .form-container {
+      width: 60%;
+      margin: auto;
+      background: rgb(151, 243, 171);
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #444;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 8px;
+      font-size: 16px;
+      margin-top: 5px;
+    }
+
+    .form-group button {
+      padding: 10px 15px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .form-group button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+<div class="form-container">
+  <h1>Library Internship Application Form</h1>
+  <form id="internshipForm">
+    <div class="form-group">
+      <label for="fullName">Full Name</label>
+      <input type="text" id="fullName" name="fullName" required>
+    </div>
+    <div class="form-group">
+      <label for="dob">Date of Birth</label>
+      <input type="date" id="dob" name="dob" required>
+    </div>
+    <div class="form-group">
+      <label for="gender">Gender</label>
+      <select id="gender" name="gender" required>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Transgender">Transgender</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" required>
+    </div>
+    <div class="form-group">
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" name="phone" required>
+    </div>
+    <div class="form-group">
+      <label for="address">Address</label>
+      <textarea id="address" name="address" rows="3" required></textarea>
+    </div>
+    <div class="form-group">
+      <label for="qualification">Highest Qualification</label>
+      <select id="qualification" name="qualification" required>
+        <option value="Undergraduate">BLIS</option>
+        <option value="Postgraduate">BA/BSC</option>
+        <option value="Postgraduate">MLIS</option>
+        <option value="Postgraduate">MA/MSC</option>
+        <option value="PhD">PhD</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="institution">Institution Name</label>
+      <input type="text" id="institution" name="institution" required>
+    </div>
+    <div class="form-group">
+      <label for="startDate">Proposed Internship Start Date</label>
+      <input type="date" id="startDate" name="startDate" required>
+    </div>
+    <div class="form-group">
+      <label for="terms">
+        <input type="checkbox" id="terms" name="terms" required> I agree with the terms and conditions.
+      </label>
+    </div>
+    <div class="form-group">
+      <button type="button" onclick="downloadPDF()">Submit Application Form</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  function downloadPDF() {
+    const form = document.getElementById('internshipForm');
+    const formData = new FormData(form);
+
+    // Format the date as dd/mm/yyyy
+    const applicationDate = new Date().toLocaleDateString('en-GB');
+
+    // Check whether terms are accepted
+    const termsAccepted = document.getElementById('terms').checked;
+    const termsText = termsAccepted ? "Terms and conditions accepted" : "Terms and conditions not accepted";
+
+    // Create a PDF-ready application letter format
+    const content = `
+      <div style="font-family: Arial, sans-serif; padding: 40px; max-width: 900px; margin: auto;  solid #000; border-radius: 0px;">
+        <h1 style="text-align: center;">Application for Library Internship</h1>
+        <p> <span style="float: right;"><strong>Date:</strong>${applicationDate}</span></p>
+        <p><strong>To,</strong><br><strong>The Principal<br>Vidyasagar College for Women</strong> <br>8A, Shibnarayan Das Ln, Simla,<br>Machuabazar, Kolkata, West Bengal 700006 </p>
+        <span style="float: right;"><strong>Subject:</strong> Request for Acceptance as a Library Intern.</p>
+        
+        <p>Dear Sir/Madam,</p>
+        
+        <p>I, ${formData.get('fullName')}, writing to express my keen interest in joining the esteemed library of Vidyasagar College for Women as an intern.I wish to gain practical experience in library management and operations under your institution's guidance.This internship opportunity will help me enhance my knowledge in cataloging, archiving, digital library systems, and assisting students in their academic pursuits. My details are given below :</p>
+
+        <p><strong>Full Name:</strong> ${formData.get('fullName')}<br>
+           <strong>Date of Birth:</strong> ${formData.get('dob')}<br>
+           <strong>Gender:</strong> ${formData.get('gender')}<br>
+           <strong>Email Address:</strong> ${formData.get('email')}<br>
+           <strong>Phone Number:</strong> ${formData.get('phone')}<br>
+           <strong>Address:</strong> ${formData.get('address')}<br>
+           <strong>Highest Qualification:</strong> ${formData.get('qualification')}<br>
+           <strong>Institution Name:</strong> ${formData.get('institution')}<br>
+           <strong>Proposed Internship Start Date:</strong> ${formData.get('startDate')}</p>
+
+        <p><Strong>${termsText}</strong></p>
+
+        <p>Thank you for considering my application. I look forward to your positive response.</p>
+
+        <p style="text-align: right;"><strong>Yours sincerely</strong>,<br><strong>${formData.get('fullName')}</strong></p>
+
+        <p style="text-align: left;"><strong>Attachments:</strong><br>1. Photocopy of ID proof<br>2. Proof of Latest Qualification</p>
+
+        <p style="text-align: left; padding-top: 50px;"><strong>Authorized Seal and Signature:</strong></p>
+      </div>
+    `;
+
+    // Generate and download the PDF
+    const element = document.createElement('div');
+    element.innerHTML = content;
+
+    html2pdf()
+      .from(element)
+      .set({
+        margin: 1,  // Increased margin to provide more space
+        filename: `${formData.get('fullName')}_Library_Internship_Application.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      })
+      .save();
+  }
+</script>
+
+</body>
+</html>

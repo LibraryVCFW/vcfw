@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional CV Maker</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            margin: 20px;
+            line-height: 1.8;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #fff;
+        }
+        button {
+            margin-top: 15px;
+            padding: 12px 25px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .photo-preview {
+            margin-top: 10px;
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        h1 {
+            text-align: center;
+            color: #007BFF;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        .section-title {
+            margin-top: 20px;
+            font-size: 1.4em;
+            color: #007BFF;
+            border-bottom: 2px solid #007BFF;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Professional CV Maker</h1>
+    <form id="cvForm">
+        <label for="name">Full Name:</label>
+        <input type="text" id="name" placeholder="Enter your full name" required>
+
+        <label for="designation">Designation:</label>
+        <input type="text" id="designation" placeholder="Enter your designation" required>
+
+        <label for="email">Email ID:</label>
+        <input type="email" id="email" placeholder="Enter your email" required>
+
+        <label for="phone">Phone Number:</label>
+        <input type="tel" id="phone" placeholder="Enter your phone number" required>
+
+        <label for="address">Address:</label>
+        <input type="text" id="address" placeholder="Enter your address" required>
+
+        <label for="academic">Academic Qualification:</label>
+        <textarea id="academic" rows="4" placeholder="List your academic qualifications" required></textarea>
+
+        <label for="researchAreas">Research Areas and Area of Interest:</label>
+        <textarea id="researchAreas" rows="4" placeholder="Describe your research areas and interests" required></textarea>
+
+        <label for="researchGuidance">Research Guidance:</label>
+        <textarea id="researchGuidance" rows="4" placeholder="List your research guidance activities" required></textarea>
+
+        <label for="projects">Projects:</label>
+        <textarea id="projects" rows="4" placeholder="Describe your projects" required></textarea>
+
+        <label for="publicationsBooks">Publications - Books Published:</label>
+        <textarea id="publicationsBooks" rows="4" placeholder="List your books published" required></textarea>
+
+        <label for="publicationsPapers">Publications - Papers Published in Refereed Journals:</label>
+        <textarea id="publicationsPapers" rows="4" placeholder="List your papers published in refereed journals" required></textarea>
+
+        <label for="photo">Upload Photo:</label>
+        <input type="file" id="photo" accept="image/*" onchange="previewPhoto()">
+        <img id="photoPreview" class="photo-preview" src="#" alt="Photo Preview" style="display: none;">
+
+        <button type="button" onclick="generatePDF()">Download CV as PDF</button>
+    </form>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        function previewPhoto() {
+            const file = document.getElementById('photo').files[0];
+            const preview = document.getElementById('photoPreview');
+            const reader = new FileReader();
+
+            reader.onloadend = function () {
+                preview.src = reader.result;
+                preview.style.display = 'block';
+            };
+
+            if (file) {
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = "#";
+                preview.style.display = 'none';
+            }
+        }
+
+        async function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const name = document.getElementById('name').value;
+            const designation = document.getElementById('designation').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const academic = document.getElementById('academic').value;
+            const researchAreas = document.getElementById('researchAreas').value;
+            const researchGuidance = document.getElementById('researchGuidance').value;
+            const projects = document.getElementById('projects').value;
+            const publicationsBooks = document.getElementById('publicationsBooks').value;
+            const publicationsPapers = document.getElementById('publicationsPapers').value;
+            const photo = document.getElementById('photoPreview').src;
+
+            doc.setFont('Georgia', 'bold');
+            doc.setFontSize(18);
+            doc.text("Curriculum Vitae", 105, 20, { align: "center" });
+
+            doc.setFont('Georgia', 'normal');
+            doc.setFontSize(12);
+            let y = 40;
+            const lineHeight = 10;
+
+            doc.text(`Name: ${name}`, 10, y);
+            y += lineHeight;
+            doc.text(`Designation: ${designation}`, 10, y);
+            y += lineHeight;
+            doc.text(`Email: ${email}`, 10, y);
+            y += lineHeight;
+            doc.text(`Phone: ${phone}`, 10, y);
+            y += lineHeight;
+            doc.text(`Address: ${address}`, 10, y);
+            y += lineHeight + 5;
+
+            doc.text("Academic Qualification:", 10, y);
+            y += lineHeight;
+            doc.text(academic, 10, y);
+            y += academic.split('\n').length * lineHeight;
+
+            doc.text("Research Areas and Area of Interest:", 10, y);
+            y += lineHeight;
+            doc.text(researchAreas, 10, y);
+            y += researchAreas.split('\n').length * lineHeight;
+
+            doc.text("Research Guidance:", 10, y);
+            y += lineHeight;
+            doc.text(researchGuidance, 10, y);
+            y += researchGuidance.split('\n').length * lineHeight;
+
+            doc.text("Projects:", 10, y);
+            y += lineHeight;
+            doc.text(projects, 10, y);
+            y += projects.split('\n').length * lineHeight;
+
+            doc.text("Publications - Books Published:", 10, y);
+            y += lineHeight;
+            doc.text(publicationsBooks, 10, y);
+            y += publicationsBooks.split('\n').length * lineHeight;
+
+            doc.text("Publications - Papers Published in Refereed Journals:", 10, y);
+            y += lineHeight;
+            doc.text(publicationsPapers, 10, y);
+            y += publicationsPapers.split('\n').length * lineHeight;
+
+            if (photo !== "#") {
+                const img = new Image();
+                img.src = photo;
+                img.onload = function () {
+                    doc.addImage(img, 'JPEG', 150, 20, 50, 50);
+                    doc.save("CV.pdf");
+                };
+            } else {
+                doc.save("CV.pdf");
+            }
+        }
+    </script>
+</body>
+</html>

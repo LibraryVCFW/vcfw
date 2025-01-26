@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Know the World</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background-image: url('https://geology.com/world/world-map.gif'); /* World map background */
+            background-size: cover;
+            background-position: center;
+            font-family: Arial, sans-serif;
+            color: rgb(5, 5, 5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .flag {
+            position: absolute;
+            cursor: pointer;
+            width: 50px;
+            height: 30px;
+            transition: transform 0.3s ease;
+        }
+        
+        .flag:hover {
+            transform: scale(1.2);
+            animation: shine 1.5s infinite alternate;
+        }
+        
+        /* Shine effect for flags */
+        @keyframes shine {
+            0% {
+                filter: brightness(1.5);
+                box-shadow: 0 0 15px rgba(250, 233, 83, 0.8);
+            }
+            100% {
+                filter: brightness(1);
+                box-shadow: none;
+            }
+        }
+
+        #info {
+            position: fixed;
+            top: 20%;
+            left: 20%;
+            width: 60%;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            display: none;
+            border-radius: 10px;
+        }
+
+        #backButton {
+            background-color: #007bff;
+            color: rgb(253, 200, 200);
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #backButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Flag Images (Click to view country info) -->
+    <img src="https://flagcdn.com/w320/us.png" alt="USA" class="flag" id="usaFlag" style="top: 40%; left: 20%;" onclick="showInfo('USA')">
+    <img src="https://flagcdn.com/w320/in.png" alt="India" class="flag" id="indiaFlag" style="top: 52%; left: 67%;" onclick="showInfo('India')">
+    <img src="https://flagcdn.com/w320/ca.png" alt="Canada" class="flag" id="canadaFlag" style="top: 15%; left: 10%;" onclick="showInfo('Canada')"> 
+    <img src="https://flagcdn.com/w320/gb.png" alt="United Kingdom" class="flag" id="ukFlag" style="top: 27%; left: 44%;" onclick="showInfo('United Kingdom')">
+    <img src="https://flagcdn.com/w320/fr.png" alt="France" class="flag" id="franceFlag" style="top: 35%; left: 44%;" onclick="showInfo('France')">
+    <img src="https://flagcdn.com/w320/au.png" alt="Australia" class="flag" id="australiaFlag" style="top: 87%; left: 87%;" onclick="showInfo('Australia')">
+    <img src="https://flagcdn.com/w320/jp.png" alt="Japan" class="flag" id="japanFlag" style="top: 45%; left: 84%;" onclick="showInfo('Japan')">
+    <img src="https://flagcdn.com/w320/de.png" alt="Germany" class="flag" id="germanyFlag" style="top: 30%; left: 48%;" onclick="showInfo('Germany')">
+    <img src="https://flagcdn.com/w320/it.png" alt="Italy" class="flag" id="italyFlag" style="top: 37%; left: 48%;" onclick="showInfo('Italy')">
+    <img src="https://flagcdn.com/w320/br.png" alt="Brazil" class="flag" id="brazilFlag" style="top: 75%; left: 32%;" onclick="showInfo('Brazil')">
+    <img src="https://flagcdn.com/w320/ru.png" alt="Russia" class="flag" id="russiaFlag" style="top: 20%; left: 77%;" onclick="showInfo('Russia')">
+    <img src="https://flagcdn.com/w320/za.png" alt="South Africa" class="flag" id="southAfricaFlag" style="top: 87%; left: 50%;" onclick="showInfo('South Africa')">
+    <img src="https://flagcdn.com/w320/mx.png" alt="Mexico" class="flag" id="mexicoFlag" style="top: 52%; left: 20%;" onclick="showInfo('Mexico')">
+    <img src="https://flagcdn.com/w320/kr.png" alt="South Korea" class="flag" id="southKoreaFlag" style="top: 45%; left: 80%;" onclick="showInfo('South Korea')">
+    <img src="https://flagcdn.com/w320/sr.png" alt="North Korea" class="flag" id="northKoreaFlag" style="top: 40%; left: 80%;" onclick="showInfo('North Korea')">
+    <img src="https://flagcdn.com/w320/cn.png" alt="china" class="flag" id="chinaFlag" style="top: 45%; left: 75%;" onclick="showInfo('China')">
+
+    <!-- Information Display -->
+    <div id="info">
+        <h3 id="countryName"></h3>
+        <p id="countryInfo"></p>
+        <button id="backButton" onclick="backToMap()">Back to Map</button>
+    </div>
+
+    <script>
+        function showInfo(country) {
+            // Fetch country data from Wikipedia API
+            fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${country}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('countryName').textContent = data.title;
+                    document.getElementById('countryInfo').textContent = data.extract;
+                    document.getElementById('info').style.display = 'block';
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        function backToMap() {
+            document.getElementById('info').style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>

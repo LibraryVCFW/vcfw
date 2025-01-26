@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Page Organizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 36px;
+            font-weight: 600;
+        }
+
+        .upload-area {
+            border: 2px dashed #ddd;
+            padding: 30px;
+            margin-top: 20px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            background-color: #f0f0f0;
+        }
+
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+            margin-top: 30px;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        #pdf-list {
+            margin-top: 30px;
+            padding: 0;
+            list-style: none;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .pdf-item {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 8px;
+            cursor: move;
+            border: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            position: relative;
+            width: 120px;
+            height: 180px;
+            transition: background-color 0.3s ease;
+        }
+
+        .pdf-item:hover {
+            background-color: #e9ecef;
+        }
+
+        .cross-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 18px;
+            color: red;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+        }
+
+        .cross-btn:hover {
+            color: darkred;
+        }
+
+        .thumbnail-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .thumbnail {
+            width: 150px;  /* Adjust for landscape */
+            height: 100px;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .thumbnail:hover {
+            transform: scale(1.2);
+        }
+
+        .info {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #555;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>PDF Page Organizer</h1>
+
+        <!-- File Upload Section -->
+        <div class="upload-area" id="upload-area">
+            <p>Click here to upload a PDF file</p>
+            <input type="file" id="file-input" accept=".pdf" style="display: none;">
+        </div>
+
+        <!-- List of Pages to be reorganized -->
+        <ul id="pdf-list"></ul>
+
+        <!-- Reorganize and Download Button -->
+        <button class="button" onclick="generateNewPdf()">Generate New PDF</button>
+
+        <div class="info">You can reorder or remove pages from the PDF and then generate a new one.</div>
+    </div>
+
+    <!-- Include libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.15.349/pdf.min.js"></script>
+
+    <script>
+        let uploadedPdf = null; // Store the uploaded PDF file
+        let pdfDoc = null; // Store the PDF document object
+        let pages = []; // Store the pages of the PDF file
+
+        // Handle file upload
+        const fileInput = document.getElementById('file-input');
+        const uploadArea = document.getElementById('upload-area');
+
+        fileInput.addEventListener('change', (e) => handleFileInput(e));
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        function handleFileInput(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                uploadedPdf = file;
+                alert('PDF file successfully uploaded.');
+                loadPdf(file);
+            } else {
+                alert('Please upload a valid PDF file.');
+            }
+        }
+
+        // Load PDF and display its pages as thumbnails
+        async function loadPdf(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+            pages = pdfDoc.getPages(); // Get pages from the PDF
+
+            renderPageList(); // Render page list for reordering/removal
+        }
+
+        // Render the list of pages with thumbnails
+        async function renderPageList() {
+            const pdfListElement = document.getElementById('pdf-list');
+            pdfListElement.innerHTML = ''; // Clear the list
+
+            for (let i = 0; i < pages.length; i++) {
+                const listItem = document.createElement('li');
+                listItem.classList.add('pdf-item');
+                listItem.setAttribute('draggable', 'true');
+                listItem.setAttribute('data-index', i);
+                
+                const thumbnailContainer = document.createElement('div');
+                thumbnailContainer.classList.add('thumbnail-container');
+
+                const thumbnail = document.createElement('img');
+                thumbnail.classList.add('thumbnail');
+                thumbnail.setAttribute('src', await getPageThumbnail(i));
+
+                // Cross button for removing page
+                const crossButton = document.createElement('button');
+                crossButton.classList.add('cross-btn');
+                crossButton.innerHTML = '&times;';
+                crossButton.onclick = () => removePage(i);
+
+                listItem.appendChild(thumbnailContainer);
+                thumbnailContainer.appendChild(thumbnail);
+                listItem.appendChild(crossButton);
+
+                // Enable drag-and-drop functionality
+                listItem.addEventListener('dragstart', (e) => dragStart(e));
+                listItem.addEventListener('dragover', (e) => dragOver(e));
+                listItem.addEventListener('drop', (e) => drop(e));
+
+                pdfListElement.appendChild(listItem);
+            }
+        }
+
+        // Get a page thumbnail using pdf.js
+        async function getPageThumbnail(pageIndex) {
+            const pdfUrl = URL.createObjectURL(uploadedPdf);
+            const loadingTask = pdfjsLib.getDocument(pdfUrl);
+            const pdf = await loadingTask.promise;
+            const pdfPage = await pdf.getPage(pageIndex + 1); // +1 because pdf.js is 1-based
+
+            const viewport = pdfPage.getViewport({ scale: 0.2 });
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            await pdfPage.render({ canvasContext: context, viewport: viewport }).promise;
+
+            return canvas.toDataURL();
+        }
+
+        // Handle the start of the drag operation
+        function dragStart(event) {
+            event.dataTransfer.setData('text', event.target.dataset.index);
+        }
+
+        // Allow the dragged item to be dropped
+        function dragOver(event) {
+            event.preventDefault();
+        }
+
+        // Handle the drop of the dragged item
+        function drop(event) {
+            const draggedIndex = event.dataTransfer.getData('text');
+            const droppedIndex = event.target.dataset.index;
+
+            if (draggedIndex !== droppedIndex) {
+                // Swap the positions of the dragged and dropped pages in the array
+                const draggedPage = pages[draggedIndex];
+                pages.splice(draggedIndex, 1);
+                pages.splice(droppedIndex, 0, draggedPage);
+
+                renderPageList(); // Re-render the list after rearranging
+            }
+        }
+
+        // Remove a page from the list
+        function removePage(index) {
+            pages.splice(index, 1);
+            renderPageList();
+        }
+
+        // Generate the new PDF from the reordered pages
+        async function generateNewPdf() {
+            if (pages.length === 0) {
+                alert('Please upload a PDF and reorder the pages first.');
+                return;
+            }
+
+            const newPdfDoc = await PDFLib.PDFDocument.create();
+
+            // Copy the pages in the current order into the new PDF document
+            for (let i = 0; i < pages.length; i++) {
+                const page = pages[i];
+                const [copiedPage] = await newPdfDoc.copyPages(pdfDoc, [page.getIndex()]);
+                newPdfDoc.addPage(copiedPage);
+            }
+
+            // Save the new PDF document
+            const newPdfBytes = await newPdfDoc.save();
+            const newPdfBlob = new Blob([newPdfBytes], { type: 'application/pdf' });
+            const newPdfUrl = URL.createObjectURL(newPdfBlob);
+
+            // Provide a download link for the new PDF
+            const downloadLink = document.createElement('a');
+            downloadLink.href = newPdfUrl;
+            downloadLink.download = 'reorganized.pdf';
+            downloadLink.textContent = 'Download New PDF';
+            downloadLink.classList.add('button');
+
+            // Append the download link
+            document.getElementById('split-files').appendChild(downloadLink);
+        }
+    </script>
+
+</body>
+</html>

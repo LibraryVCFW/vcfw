@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Merger with Drag and Drop</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column; /* Change to column for vertical stacking */
+      text-align: center;
+    }
+
+    .container {
+      text-align: center;
+      width: 90%;
+      max-width: 700px;
+      padding: 20px;
+      border-radius: 10px;
+      background-color: #fff;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Logo and College Name Styles */
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      margin-bottom: 40px;
+    }
+
+    .logo-container img {
+      width: 100px;
+      height: auto;
+    }
+
+    .college-name {
+      font-size: 22px;
+      font-weight: 600;
+      color: #333;
+      margin-top: 10px;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 36px;
+      font-weight: 600;
+    }
+
+    .button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 20px;
+      margin-top: 30px;
+      transition: background-color 0.3s;
+      width: 100%;
+      max-width: 350px;
+    }
+
+    .button:hover {
+      background-color: #45a049;
+    }
+
+    #pdf-list {
+      margin-top: 40px;
+      padding: 0;
+      list-style: none;
+      background-color: #fff;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    .pdf-item {
+      background-color: #f9f9f9;
+      padding: 15px;
+      margin: 12px 0;
+      border-radius: 8px;
+      cursor: move;
+      border: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    .pdf-item:hover {
+      background-color: #e9ecef;
+    }
+
+    .remove-btn {
+      background-color: red;
+      color: white;
+      padding: 6px 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .remove-btn:hover {
+      background-color: darkred;
+    }
+
+    #merged-files {
+      margin-top: 30px;
+      text-align: left;
+      background-color: #fff;
+      padding: 25px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+
+    .download-btn {
+      background-color: #007bff;
+      color: white;
+      padding: 14px 25px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 20px;
+      text-decoration: none;
+      transition: background-color 0.3s;
+    }
+
+    .download-btn:hover {
+      background-color: #0056b3;
+    }
+
+    .info {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #555;
+      font-style: italic;
+    }
+
+    .drag-drop-area {
+      border: 2px dashed #ddd;
+      padding: 30px;
+      margin-top: 40px;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+      color: #666;
+      cursor: pointer;
+    }
+
+    .drag-drop-area:hover {
+      background-color: #f0f0f0;
+    }
+
+    .drag-drop-area p {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    /* Landscape Orientation Styles */
+    @media (orientation: landscape) {
+      body {
+        height: auto;
+        padding: 20px;
+        flex-direction: row; /* Switch to row layout for landscape */
+        justify-content: flex-start;
+      }
+
+      .container {
+        width: 50%;
+        margin: 0 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Logo and College Name -->
+  <div class="logo-container">
+    <img src="assets/images/picsart-25-01-19-22-25-22.png" alt="VCFW Logo"> <!-- Replace with your logo image URL -->
+    <div class="college-name">Vidyasagar College for Women</div>
+  </div>
+
+  <div class="container">
+    <h1>PDF Merger Tool</h1>
+
+    <!-- Add PDF Section -->
+    <button class="button" onclick="addPdf()">+ Add PDF</button>
+
+    <!-- Drag and Drop Area -->
+    <div class="drag-drop-area" id="drag-drop-area">
+      <p>Drag & Drop PDF files here</p>
+    </div>
+
+    <!-- List of PDFs to be merged -->
+    <ul id="pdf-list"></ul>
+
+    <!-- Merge Button -->
+    <button class="button" onclick="mergePDFs()">Merge PDFs</button>
+
+    <!-- Output -->
+    <div id="merged-files"></div>
+    <div class="info">You can add up to 10 PDFs for merging.</div>
+  </div>
+
+  <!-- Include libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+  <script>
+    let pdfFiles = []; // Array to store selected PDF files
+
+    // Add PDF file to the list
+    function addPdf() {
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = '.pdf';
+      fileInput.addEventListener('change', (e) => handleFileSelect(e));
+      fileInput.click();
+    }
+
+    // Handle file selection and show in the list
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (file && file.type === 'application/pdf') {
+        pdfFiles.push(file);
+        renderPdfList();
+      } else {
+        alert('Please select a valid PDF file.');
+      }
+    }
+
+    // Render the list of PDFs
+    function renderPdfList() {
+      const pdfListElement = document.getElementById('pdf-list');
+      pdfListElement.innerHTML = ''; // Clear the list
+
+      pdfFiles.forEach((file, index) => {
+        const listItem = document.createElement('li');
+        listItem.classList.add('pdf-item');
+        listItem.setAttribute('draggable', 'true');
+        listItem.setAttribute('data-index', index);
+        listItem.innerHTML = `
+          ${file.name} 
+          <button class="remove-btn" onclick="removePdf(${index})">Remove</button>
+        `;
+
+        // Enable drag-and-drop functionality
+        listItem.addEventListener('dragstart', (e) => dragStart(e));
+        listItem.addEventListener('dragover', (e) => dragOver(e));
+        listItem.addEventListener('drop', (e) => drop(e));
+
+        pdfListElement.appendChild(listItem);
+      });
+    }
+
+    // Handle the start of the drag operation
+    function dragStart(event) {
+      event.dataTransfer.setData('text', event.target.dataset.index);
+    }
+
+    // Allow the dragged item to be dropped
+    function dragOver(event) {
+      event.preventDefault();
+    }
+
+    // Handle the drop of the dragged item
+    function drop(event) {
+      const draggedIndex = event.dataTransfer.getData('text');
+      const droppedIndex = event.target.dataset.index;
+
+      if (draggedIndex !== droppedIndex) {
+        // Swap the positions of the dragged and dropped PDFs in the array
+        [pdfFiles[draggedIndex], pdfFiles[droppedIndex]] = [pdfFiles[droppedIndex], pdfFiles[draggedIndex]];
+        renderPdfList(); // Re-render the list after rearranging
+      }
+    }
+
+    // Remove a PDF from the list
+    function removePdf(index) {
+      pdfFiles.splice(index, 1);
+      renderPdfList();
+    }
+
+    // Merge the selected PDFs
+    async function mergePDFs() {
+      if (pdfFiles.length < 2) {
+        alert('Please add at least two PDFs to merge.');
+        return;
+      }
+
+      const pdfDoc = await PDFLib.PDFDocument.create();
+
+      for (const file of pdfFiles) {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+        const copiedPages = await pdfDoc.copyPages(pdf, pdf.getPageIndices());
+        copiedPages.forEach(page => pdfDoc.addPage(page));
+      }
+
+      const mergedPdfBytes = await pdfDoc.save();
+      const mergedPdfBlob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+      const mergedPdfUrl = URL.createObjectURL(mergedPdfBlob);
+
+      const downloadLink = document.createElement('a');
+      downloadLink.href = mergedPdfUrl;
+      downloadLink.download = 'merged.pdf';
+      downloadLink.textContent = 'Download Merged PDF';
+      downloadLink.classList.add('download-btn');
+      downloadLink.addEventListener('click', () => clearDownloadLink()); // Clear the download link after downloading
+
+      document.getElementById('merged-files').innerHTML = ''; // Clear previous output
+      document.getElementById('merged-files').appendChild(downloadLink);
+    }
+
+    // Clear the download link after the file is downloaded
+    function clearDownloadLink() {
+      setTimeout(() => {
+        document.getElementById('merged-files').innerHTML = ''; // Clear the download link after some time
+      }, 500);
+    }
+
+    // Drag and drop functionality for the drop area
+    const dragDropArea = document.getElementById('drag-drop-area');
+    dragDropArea.addEventListener('dragover', (e) => e.preventDefault());
+    dragDropArea.addEventListener('drop', (e) => handleDrop(e));
+
+    function handleDrop(event) {
+      event.preventDefault();
+      const files = event.dataTransfer.files;
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.type === 'application/pdf') {
+          pdfFiles.push(file);
+        }
+      }
+      renderPdfList();
+    }
+  </script>
+</body>
+</html>
